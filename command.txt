@@ -1,3 +1,4 @@
+docker-compose up -d
 docker exec -it pihole pihole setpassword 'admin'
 docker exec -it simulation-client sh
 nslookup wikipedia.org
