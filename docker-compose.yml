@@ -1,0 +1,37 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    environment:
+      TZ: 'Europe/Warsaw'
+      WEBPASSWORD: 'admin'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    networks:
+      pihole_net:
+        ipv4_address: 172.20.0.2
+    restart: unless-stopped
+
+  client:
+    container_name: simulation-client
+    image: alpine:latest
+    # Instalujemy bind-tools (dla nslookup) i utrzymujemy kontener przy życiu
+    command: >
+      sh -c "apk add --no-cache bind-tools && tail -f /dev/null"
+    networks:
+      pihole_net:
+        ipv4_address: 172.20.0.3
+    dns:
+      - 172.20.0.2
+
+networks:
+  pihole_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
